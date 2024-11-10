@@ -1,0 +1,108 @@
+import pygame
+
+# Inicializar Pygame
+pygame.init()
+
+# Configuración de pantalla y colores
+screen = pygame.display.set_mode((800, 600))
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Fuente
+font = pygame.font.Font(None, 36)
+
+# Variables de control
+running = True
+paused = False
+music_muted = False
+
+# Cargar imágenes de fondo y botones
+pause_menu_background = pygame.image.load("ruta_a_tu_imagen_de_fondo.png")
+button_image = pygame.image.load("ruta_a_tu_imagen_boton.png")
+button_image_hover = pygame.image.load("ruta_a_tu_imagen_boton_hover.png")
+
+# Cargar música y configurarla
+pygame.mixer.music.load("ruta_a_tu_musica.mp3")
+pygame.mixer.music.play(-1)  # Repetir indefinidamente
+
+
+# Funciones para los botones del menú
+def resume_game():
+    global paused
+    paused = False
+
+
+def restart_level():
+    print("Reiniciando nivel...")
+
+
+def go_to_main_menu():
+    print("Volver al menú principal...")
+
+
+def toggle_music():
+    global music_muted
+    if music_muted:
+        pygame.mixer.music.unpause()
+    else:
+        pygame.mixer.music.pause()
+    music_muted = not music_muted
+
+
+# Función para mostrar el menú de pausa
+def pause_menu():
+    # Dibujar fondo del menú de pausa
+    screen.blit(pause_menu_background, (0, 0))
+
+    # Texto del menú
+    menu_text = font.render("Menú de Pausa", True, WHITE)
+    screen.blit(menu_text, (320, 100))
+
+    # Crear botones
+    buttons = [
+        ("Reanudar", resume_game),
+        ("Reiniciar Nivel", restart_level),
+        ("Volver al Menú Principal", go_to_main_menu),
+        ("Silenciar Música" if not music_muted else "Activar Música", toggle_music)
+    ]
+
+    # Dibujar botones
+    for i, (text, action) in enumerate(buttons):
+        # Dibujar imagen del botón y resaltar cuando el mouse esté sobre él
+        mouse_pos = pygame.mouse.get_pos()
+        button_image_to_use = button_image_hover if button_rect.collidepoint(mouse_pos) else button_image
+        button_rect = button_image_to_use.get_rect(center=(400, 200 + i * 60))
+
+        screen.blit(button_image_to_use, button_rect)
+        button_text = font.render(text, True, WHITE)
+        text_rect = button_text.get_rect(center=button_rect.center)
+        screen.blit(button_text, text_rect)
+
+        # Manejo de clics en los botones
+        if button_rect.collidepoint(mouse_pos):
+            if pygame.mouse.get_pressed()[0]:
+                action()
+
+    pygame.display.flip()
+
+
+# Ciclo principal del juego
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_p:
+                paused = not paused
+
+    # Lógica de pausa
+    if paused:
+        pause_menu()
+    else:
+        screen.fill(WHITE)
+        game_text = font.render("Juego en Curso... Presiona 'P' para pausar", True, BLACK)
+        screen.blit(game_text, (200, 300))
+        pygame.display.flip()
+
+pygame.quit()
